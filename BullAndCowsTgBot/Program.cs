@@ -5,6 +5,7 @@ using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 using System.Text;
+using System.Threading.Tasks;
 
 
 
@@ -22,7 +23,7 @@ namespace TGBotTestConsoleApp
 
         static StringBuilder userWord = new StringBuilder();
         static InlineKeyboardMarkup keyboard;
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
 
             bot.OnMessage += Bot_OnMessage;
@@ -50,14 +51,14 @@ namespace TGBotTestConsoleApp
                     return;
                 }
 
-                bool flag = true;
+               
                 int bulls = 0, cows = 0;
 
                 if (message.Text.Length != currWord.Length)
                 {
-                    flag = false;
-
+                    
                     await bot.SendMessage(message.Chat.Id, "Вы ввели слово другой длины! Введите слово указанной длины!");
+                    return;
                 }
                 else
                 {
@@ -68,11 +69,10 @@ namespace TGBotTestConsoleApp
 
                         if (!Char.IsLetter(ch))
                         {
-                            flag = false;
-
+                            
                             await bot.SendMessage(message.Chat.Id, "Введите слово состоящее из БУКВ!");
 
-                            break;
+                            return;
                         }
 
                         if (ch == currWord[i])
@@ -91,18 +91,17 @@ namespace TGBotTestConsoleApp
                     }
 
                 }
-                if (flag)
-                {
-                    if (!userWord.ToString().Contains('*'))
-                        {
-                        await bot.SendMessage(message.Chat.Id, $"Ура! Вы отгадали слово:\n\n{userWord}\n\nВведите '/start' чтобы я загадал новое слово!");
-                        userWord.Clear();
-                    }
-                    else
+                
+                if (!userWord.ToString().Contains('*'))
                     {
-                        await bot.SendMessage(message.Chat.Id, $"Вы отгадали {bulls} быков и {cows} коров:\n\n{userWord}\n\nПродолжаем!");
-                    }
+                    await bot.SendMessage(message.Chat.Id, $"Ура! Вы отгадали слово:\n\n{userWord}\n\nВведите '/start' чтобы я загадал новое слово!");
+                    userWord.Clear();
                 }
+                else
+                {
+                    await bot.SendMessage(message.Chat.Id, $"Вы отгадали {bulls} быков и {cows} коров:\n\n{userWord}\n\nПродолжаем!");
+                }
+                
             }
         }
     }
